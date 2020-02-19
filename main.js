@@ -3,10 +3,13 @@ class Calculator {
     this.special = {'C': 'clear', 'N': 'negate', "E": 'evaluate', 'D': "decimal"}
     this.operation = {'PLUS': '+', 'MINUS': '-', "MULTI": '*', 'DIVBY': "/"}
     this.digits = digits
+    this.buttons = buttons
     this.attach_buttons(buttons)
+    this.keyin()
     this.expr = ""
     this.next = false
     this.err = false
+    this.max = 16
   }
 
   attach_buttons (buttons) {
@@ -14,8 +17,24 @@ class Calculator {
       button.addEventListener('click', ev => {
         let value = ev.target.value
         this.entry(value)
+        console.log(this.expr)
       })
     }
+  }
+
+  keyin() {
+    window.addEventListener('keypress', ev => {
+      let key = ev.key
+      let buttons = Array.from(this.buttons)
+      if(key.match(/[0-9]/g)) {
+        buttons.map(function(item) {
+          let dom = document.querySelector(item)
+          if(dom.value === key) {
+            console.log(dom)
+          }
+        })
+      }
+    })
   }
 
   entry (value) {
@@ -23,11 +42,19 @@ class Calculator {
       if(this.next) {
         this.digits.innerHTML = value
         this.next = false
+        let expr = this.expr.split(" ");
+        if(expr[2] != "") {
+          this.expr = ""
+        }
         return true
       }
       this.digits.innerHTML = this.check_zero()
         ? value
-        : this.digits.innerHTML + value
+        : this.digits.innerHTML + value;
+      if(this.maxed(this.digits.innerHTML)) {
+        this.err = true
+        this.digits.innerHTML = "Overflow"
+      }
     }
   }
 
@@ -58,6 +85,7 @@ class Calculator {
     } else {
       this.digits.innerHTML = "-" + this.digits.innerHTML
     }
+    this.expr = ""
     return true
   }
 
@@ -70,6 +98,15 @@ class Calculator {
 
   decimal (value) {
     let curr = this.digits.innerHTML
+    let expr = this.expr.split(" ")
+    if(this.next) {
+      this.next = false
+      if(expr.length == 3) {
+        this.expr = ""
+      }
+      this.digits.innerHTML = "0."
+      return true
+    }
     if(!curr.match(/\./g)) {
       this.digits.innerHTML = this.digits.innerHTML + "."
     }
@@ -81,6 +118,12 @@ class Calculator {
     let expr = this.expr.split(" ")
     let result = ""
 
+    if(expr.length == 1) {
+      return true
+    }
+
+    this.next = true;
+
     if(expr[2] == "")
       this.expr = this.expr + `${curr}`
     else
@@ -90,6 +133,13 @@ class Calculator {
     expr = this.expr.split(" ")
 
     result = eval(this.expr)
+
+    if(this.maxed(result)) {
+      this.err = true
+      this.digits.innerHTML = "Overflow"
+      return true
+    }
+
     if(result == "Infinity") {
       this.err = true
       this.digits.innerHTML = "Error: Cannot Divide By Zero"
@@ -102,6 +152,12 @@ class Calculator {
 
   check_zero() {
     return this.digits.innerHTML == "0";
+  }
+
+  maxed(value) {
+    value = value.toString()
+    value = value.replace("/[^0-9\\s+]/")
+    return value.length > 16
   }
 }
 

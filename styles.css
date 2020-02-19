@@ -71,3 +71,14 @@ button:active {
 .w-100 {
   width: 100%;
 }
+
+@media only screen and (max-device-width: 640px) {
+  #screen {
+    font-size: 1.25em;
+  }
+
+  button {
+    font-size: 0.85em;
+  }
+
+}
