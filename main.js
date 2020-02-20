@@ -45,6 +45,14 @@ class Calculator {
           button.click()
           return
         }
+        if(key === "." && button.value === "D") {
+          button.click()
+          return
+        }
+        if((key === "c" || key === "C") && button.value === "C") {
+          button.click()
+          return
+        }
       }
     })
   }
