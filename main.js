@@ -4,7 +4,7 @@ class Calculator {
     this.operation = {'PLUS': '+', 'MINUS': '-', "MULTI": '*', 'DIVBY': "/"}
     this.digits = digits
     this.buttons = buttons
-    this.attach_buttons(buttons)
+    this.attach_buttons()
     this.keyin()
     this.expr = ""
     this.next = false
@@ -12,8 +12,8 @@ class Calculator {
     this.max = 16
   }
 
-  attach_buttons (buttons) {
-    for (let button of buttons) {
+  attach_buttons () {
+    for (let button of this.buttons) {
       button.addEventListener('click', ev => {
         let value = ev.target.value
         this.entry(value)
@@ -25,14 +25,26 @@ class Calculator {
   keyin() {
     window.addEventListener('keypress', ev => {
       let key = ev.key
-      let buttons = Array.from(this.buttons)
-      if(key.match(/[0-9]/g)) {
-        buttons.map(function(item) {
-          let dom = document.querySelector(item)
-          if(dom.value === key) {
-            console.log(dom)
+
+      for (let button of this.buttons) {
+        if(key.match(/[0-9]/g)) {
+          if(button.value === key) {
+            button.click()
+            return
           }
-        })
+        }
+        if(key.match(/[\+\-*\/]/g)) {
+          for (let operation in this.operation) {
+            if(key === this.operation[operation] && button.value === operation) {
+              button.click()
+              return
+            }
+          }
+        }
+        if(key === "Enter" && button.value === "E") {
+          button.click()
+          return
+        }
       }
     })
   }
